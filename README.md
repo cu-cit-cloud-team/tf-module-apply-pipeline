@@ -18,6 +18,10 @@ Terraform module to create Terraform drift, plan, and apply CodePipelines.
 
 ## Change Log
 
+### 3.3.1
+- Loosen version restriction on `hashicorp/archive` provider.
+- Update references from old `CU-CommunityApps` Github Organization to new `cu-cit-cloud-team` Github Organization.
+
 ### 3.3.0
 - add tags to IAM role and policy resources
 
@@ -63,7 +67,7 @@ None.
 ```
 
 module "apply_pipeline" {
-  source = "github.com/CU-CommunityApps/tf-module-apply-pipeline.git?ref=v1.0.0"  
+  source = "github.com/cu-cit-cloud-team/tf-module-apply-pipeline.git?ref=v1.0.0"  
   
   namespace = "tf-example"
   
@@ -73,7 +77,7 @@ module "apply_pipeline" {
   terraform_version      = "1.0.10"
   terraform_state_bucket = "my-tf-bucket"
   terraform_state_key    = "prod/tf-example/resources/terraform.state"
-  github_repo = "CU-CommunityApps/tf-example"
+  github_repo = "cu-cit-cloud-team/tf-example"
   git_branch  = "main"
   resource_plan_policy_arns = [
     "arn:aws:iam::123456789012:policy/tf-example-plan-privs"
