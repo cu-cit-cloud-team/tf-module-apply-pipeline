@@ -15,9 +15,56 @@ resource "aws_s3_bucket" "codepipeline_bucket" {
   })
 }
 
-resource "aws_s3_bucket_acl" "codepipeline_bucket" {
+resource "aws_s3_bucket_public_access_block" "codepipeline_bucket" {
+  bucket                  = aws_s3_bucket.codepipeline_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "codepipeline_bucket" {
   bucket = aws_s3_bucket.codepipeline_bucket.id
-  acl    = "private"
+
+  rule {
+    bucket_key_enabled = true
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "codepipeline_bucket" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+  policy = data.aws_iam_policy_document.codepipeline_bucket.json
+}
+
+data "aws_iam_policy_document" "codepipeline_bucket" {
+  statement {
+    actions   = ["s3:*"]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.codepipeline_bucket.bucket}/*",
+      "arn:aws:s3:::${aws_s3_bucket.codepipeline_bucket.bucket}"
+    ]
+    effect    = "Deny"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "codepipeline_bucket" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
 }
 
 resource "aws_iam_role" "codepipeline_role" {

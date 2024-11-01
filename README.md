@@ -18,6 +18,13 @@ Terraform module to create Terraform drift, plan, and apply CodePipelines.
 
 ## Change Log
 
+### 3.4.0
+- Add public access block (`aws_s3_bucket_public_access_block`) to resource/pipeline bucket
+- Add bucket policy (`aws_s3_bucket_policy`) blocking insecure transport to resource/pipeline bucket
+- Add `aws_s3_bucket_server_side_encryption_configuration` to resource/pipeline bucket
+- Remove private ACL from resource/pipeline bucket
+- Add `aws_s3_bucket_ownership_controls` for resource/pipeline bucket
+
 ### 3.3.1
 - Loosen version restriction on `hashicorp/archive` provider.
 - Update references from old `CU-CommunityApps` Github Organization to new `cu-cit-cloud-team` Github Organization.
