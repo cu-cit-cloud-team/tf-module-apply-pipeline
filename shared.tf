@@ -212,7 +212,8 @@ resource "aws_iam_policy" "build-policy" {
         "logs:CreateLogStream",
         "logs:PutLogEvents",
         "logs:DescribeLogGroups",
-        "logs:ListTagsLogGroup"
+        "logs:ListTagsLogGroup",
+        "logs:ListTagsForResource"
       ]
     },
     {
@@ -284,7 +285,8 @@ resource "aws_iam_policy" "apply-policy" {
         "logs:CreateLogStream",
         "logs:PutLogEvents",
         "logs:DescribeLogGroups",
-        "logs:ListTagsLogGroup"
+        "logs:ListTagsLogGroup",
+        "logs:ListTagsForResource"
       ]
     },
     {

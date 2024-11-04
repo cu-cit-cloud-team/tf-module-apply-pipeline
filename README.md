@@ -18,6 +18,9 @@ Terraform module to create Terraform drift, plan, and apply CodePipelines.
 
 ## Change Log
 
+### 3.4.1
+- Add `logs:ListTagsForResource` privs to build and apply roles
+
 ### 3.4.0
 - Add public access block (`aws_s3_bucket_public_access_block`) to resource/pipeline bucket
 - Add bucket policy (`aws_s3_bucket_policy`) blocking insecure transport to resource/pipeline bucket
