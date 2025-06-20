@@ -168,11 +168,8 @@ POLICY
 resource "aws_codestarnotifications_notification_rule" "drift-pipeline-notify" {
   detail_type    = "FULL"
   event_type_ids = [
-    "codepipeline-pipeline-pipeline-execution-failed",
-    "codepipeline-pipeline-pipeline-execution-canceled",
-    "codepipeline-pipeline-pipeline-execution-resumed",
     "codepipeline-pipeline-pipeline-execution-succeeded",
-    "codepipeline-pipeline-pipeline-execution-superseded"
+    "codepipeline-pipeline-pipeline-execution-started"
   ]
 
   name     = "${aws_codepipeline.drift-pipeline.name}-notify-teams"
@@ -180,5 +177,22 @@ resource "aws_codestarnotifications_notification_rule" "drift-pipeline-notify" {
 
   target {
     address = aws_sns_topic.notify-topic.arn
+  }
+}
+
+resource "aws_codestarnotifications_notification_rule" "drift-pipeline-alert" {
+  detail_type    = "FULL"
+  event_type_ids = [
+    "codepipeline-pipeline-pipeline-execution-failed",
+    "codepipeline-pipeline-pipeline-execution-canceled",
+    "codepipeline-pipeline-pipeline-execution-resumed",
+    "codepipeline-pipeline-pipeline-execution-superseded"
+  ]
+
+  name     = "${aws_codepipeline.drift-pipeline.name}-alert-teams"
+  resource = aws_codepipeline.drift-pipeline.arn
+
+  target {
+    address = aws_sns_topic.alert-topic.arn
   }
 }

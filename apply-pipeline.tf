@@ -58,9 +58,7 @@ resource "aws_codepipeline" "apply-pipeline" {
       version  = "1"
 
       configuration = {
-        # CustomData         = "CustomData"
-        # ExternalEntityLink = "http://www.example.com"
-        NotificationArn    = aws_sns_topic.notify-topic.arn
+        NotificationArn    = aws_sns_topic.alert-topic.arn
       }
     }
   }
@@ -190,11 +188,7 @@ resource "aws_codebuild_project" "build-apply" {
 resource "aws_codestarnotifications_notification_rule" "apply-pipeline-notify" {
   detail_type    = "FULL"
   event_type_ids = [
-    "codepipeline-pipeline-pipeline-execution-failed",
-    "codepipeline-pipeline-pipeline-execution-canceled",
-    "codepipeline-pipeline-pipeline-execution-resumed",
     "codepipeline-pipeline-pipeline-execution-succeeded",
-    "codepipeline-pipeline-pipeline-execution-superseded",
     "codepipeline-pipeline-pipeline-execution-started"
   ]
 
@@ -204,5 +198,23 @@ resource "aws_codestarnotifications_notification_rule" "apply-pipeline-notify" {
 
   target {
     address = aws_sns_topic.notify-topic.arn
+  }
+}
+
+resource "aws_codestarnotifications_notification_rule" "apply-pipeline-alert" {
+  detail_type    = "FULL"
+  event_type_ids = [
+    "codepipeline-pipeline-pipeline-execution-failed",
+    "codepipeline-pipeline-pipeline-execution-canceled",
+    "codepipeline-pipeline-pipeline-execution-resumed",
+    "codepipeline-pipeline-pipeline-execution-superseded",
+  ]
+
+  name     = "${aws_codepipeline.apply-pipeline.name}-alert-teams"
+  resource = aws_codepipeline.apply-pipeline.arn
+  tags     = var.global_tags
+
+  target {
+    address = aws_sns_topic.alert-topic.arn
   }
 }
