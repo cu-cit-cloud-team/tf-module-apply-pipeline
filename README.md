@@ -18,7 +18,7 @@ Terraform module to create Terraform drift, plan, and apply CodePipelines.
 
 ## Change Log
 
-### 4.0.0
+### 4.0.0 (CTSCRUM-4126)
 - Add an "alert" SNS topic that is used for all notifications that represent some sort of abnormal situation (e.g., pileline failure, abort, stop). The existing "notify" SNS topic will be used for normal situations (e.g., pipeline success). The ARN for the "alert" topic is available as the `alerts_sns_topic_arn` output value.
 - Add `notify_topic_tags` and `alert_topic_tags` variables to allow specific tagging of the SNS topics this module creates.
 
