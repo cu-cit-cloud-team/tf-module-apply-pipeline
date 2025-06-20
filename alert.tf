@@ -1,24 +1,19 @@
-resource "aws_sns_topic" "notify-topic" {
-  name = "${local.build_project_name_base}-notify"
+resource "aws_sns_topic" "alert-topic" {
+  name = "${local.build_project_name_base}-alert"
 
   tags = merge(
     var.global_tags,
-    var.notify_topic_tags,
+    var.alert_topic_tags,
   )
 }
 
-moved {
-  from = aws_sns_topic_policy.default
-  to   = aws_sns_topic_policy.notify-default
+resource "aws_sns_topic_policy" "alert-default" {
+  arn = aws_sns_topic.alert-topic.arn
+
+  policy = data.aws_iam_policy_document.alert-sns-topic-policy.json
 }
 
-resource "aws_sns_topic_policy" "notify-default" {
-  arn = aws_sns_topic.notify-topic.arn
-
-  policy = data.aws_iam_policy_document.sns-topic-policy.json
-}
-
-data "aws_iam_policy_document" "sns-topic-policy" {
+data "aws_iam_policy_document" "alert-sns-topic-policy" {
   policy_id = "__default_policy_ID"
 
   statement {
@@ -51,7 +46,7 @@ data "aws_iam_policy_document" "sns-topic-policy" {
     }
 
     resources = [
-      aws_sns_topic.notify-topic.arn,
+      aws_sns_topic.alert-topic.arn,
     ]
 
     sid = "__default_statement_ID"
@@ -62,7 +57,7 @@ data "aws_iam_policy_document" "sns-topic-policy" {
     effect  = "Allow"
     sid     = "allow-cloudwatch-events-to-publish"
     resources = [
-      aws_sns_topic.notify-topic.arn,
+      aws_sns_topic.alert-topic.arn,
     ]
     principals {
       type        = "Service"
@@ -75,7 +70,7 @@ data "aws_iam_policy_document" "sns-topic-policy" {
     effect  = "Allow"
     sid     = "CodeNotification_publish"
     resources = [
-      aws_sns_topic.notify-topic.arn,
+      aws_sns_topic.alert-topic.arn,
     ]
     principals {
       type        = "Service"

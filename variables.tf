@@ -79,3 +79,15 @@ variable "log_retention_in_days" {
   description = "number of days to retain CodePipeline and CodeBuild logs"
   default     = 90
 }
+
+variable "notify_topic_tags" {
+  type        = map(string)
+  description = "tags to apply to the SNS topic used for notifications"
+  default     = {}
+}
+
+variable  "alert_topic_tags" {
+  type        = map(string)
+  description = "tags to apply to the SNS topic used for alerts"
+  default     = {}
+}
