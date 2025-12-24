@@ -2,6 +2,7 @@
 resource "aws_codepipeline" "drift-pipeline" {
   name     = "${var.namespace}-drift-pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
+  tags     = var.global_tags
 
   artifact_store {
     location = aws_s3_bucket.codepipeline_bucket.bucket
