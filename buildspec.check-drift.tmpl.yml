@@ -2,6 +2,7 @@ version: 0.2
 
 env:
   variables:
+    TF_RECREATE_MISSING_LAMBDA_PACKAGE: false
     TF_IN_AUTOMATION: true
     %{ if tf_log != null }
     TF_LOG: ${tf_log}

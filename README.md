@@ -37,6 +37,9 @@ Tag formats supported:
 
 ## Change Log
 
+### 4.0.2
+- Set `TF_RECREATE_MISSING_LAMBDA_PACKAGE` to `false` in drift buildspec to avoid issues with missing Lambda packages when using `terraform-aws-modules/lambda/aws` module.
+
 ### 4.0.1
 - Propagate global tags to drift pipeline, which was previously not tagged.
 - Add GitHub action to automatically create GitHub releases when a new semantic version tag is pushed.
