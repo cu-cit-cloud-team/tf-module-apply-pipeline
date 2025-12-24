@@ -10,6 +10,25 @@ Terraform module to create Terraform drift, plan, and apply CodePipelines.
 - IAM Policies and Roles to support the CodePipelines
 - Notifications of Pipeline/Build status sent to Teams
 
+## Creating Releases
+
+This module uses automated GitHub releases. To create a new release:
+
+1. Tag your commit with a semantic version:
+   ```bash
+   git tag v4.0.2
+   git push origin v4.0.2
+   ```
+
+2. The GitHub Actions workflow will automatically:
+   - Create a new GitHub release
+   - Generate release notes from commits and PRs
+   - Mark pre-release versions (e.g., `v4.1.0-beta`) appropriately
+
+Tag formats supported:
+- Stable releases: `v1.2.3`
+- Pre-releases: `v1.2.3-alpha`, `v1.2.3-beta`, `v1.2.3-rc1`
+
 ## TO DO
 
 - Integrate the full script from `tf-plan.sh` into `buildspec.plan.tmpl.yml`. This script stops the pipeline when there are no changes to be applied.
@@ -17,6 +36,10 @@ Terraform module to create Terraform drift, plan, and apply CodePipelines.
 - More documentation
 
 ## Change Log
+
+### 4.0.1
+- Propagate global tags to drift pipeline, which was previously not tagged.
+- Add GitHub action to automatically create GitHub releases when a new semantic version tag is pushed.
 
 ### 4.0.0 (CTSCRUM-4126)
 - Add an "alert" SNS topic that is used for all notifications that represent some sort of abnormal situation (e.g., pileline failure, abort, stop). The existing "notify" SNS topic will be used for normal situations (e.g., pipeline success). The ARN for the "alert" topic is available as the `alerts_sns_topic_arn` output value.
