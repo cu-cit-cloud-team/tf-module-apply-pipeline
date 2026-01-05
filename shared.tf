@@ -34,6 +34,39 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "codepipeline_buck
   }
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "drift_expire_policy" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+
+  # Drift pipeline
+  rule {
+    id     = "expire-drift-objects"
+    status = "Enabled"
+
+    filter {
+      prefix = substr(aws_codepipeline.drift-pipeline.name, 0, 20)
+    }
+
+    expiration {
+      days = var.expire_days
+    }
+  }
+
+  # Apply pipeline
+  rule {
+    id     = "expire-apply-objects"
+    status = "Enabled"
+
+    filter {
+      prefix = substr(aws_codepipeline.apply-pipeline.name, 0, 20)
+    }
+
+    expiration {
+      days = var.expire_days
+    }
+  }
+}
+
+
 resource "aws_s3_bucket_policy" "codepipeline_bucket" {
   bucket = aws_s3_bucket.codepipeline_bucket.id
   policy = data.aws_iam_policy_document.codepipeline_bucket.json
@@ -223,7 +256,8 @@ resource "aws_iam_policy" "build-policy" {
           "s3:GetObject",
           "s3:GetObjectVersion",
           "s3:GetBucketAcl",
-          "s3:GetBucketLocation"
+          "s3:GetBucketLocation",
+          "s3:ListBucket"
       ],
       "Resource": [
         "${aws_s3_bucket.codepipeline_bucket.arn}",

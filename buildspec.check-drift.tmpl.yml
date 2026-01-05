@@ -14,10 +14,24 @@ phases:
       - wget --no-verbose https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
       - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
       - cd ${RESOURCES_PATH}
-      - terraform init -input=false -no-color 
+      - terraform init -input=false -no-color
+
   build:
     commands:
-      - terraform plan -input=false -detailed-exitcode -no-color -refresh=true -lock=false
+      # Place the scripts
+      - mkdir -p /tmp/scripts/
+      - aws s3 cp ${SCRIPTS_LOCATION} /tmp/scripts/ --recursive
+      - chmod +x /tmp/scripts/*.sh
+      - ls -al /tmp/scripts/
+
+      # Run the drift check
+      - /tmp/scripts/drift-check.sh
+
+artifacts:
+  files:
+    - ${RESOURCES_PATH}*.txt
+    - ${RESOURCES_PATH}*.json
+
 cache:
   paths:
     - '.terraform/**/*'

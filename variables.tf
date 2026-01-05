@@ -46,6 +46,12 @@ variable "resources_path" {
   default     = "resources/"
 }
 
+variable "expire_days" {
+  type        = number
+  description = "Number of days after which CodePipeline artifacts and sources are expired."
+  default     = 180
+}
+
 variable "drift_cron" {
   type        = string
   description = "AWS EventBridge cron expression for when drift should be checked"
@@ -90,4 +96,12 @@ variable  "alert_topic_tags" {
   type        = map(string)
   description = "tags to apply to the SNS topic used for alerts"
   default     = {}
+}
+
+# This is required in order to separate different versions of scripts
+# deployed by this module in S3.
+variable "semantic_version" {
+  type        = string
+  description = "Semantic version of the resource using this module"
+  default     = "v0.0.0"
 }

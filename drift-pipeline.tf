@@ -79,6 +79,7 @@ resource "aws_codebuild_project" "build-drift" {
                     TERRAFORM_VERSION = var.terraform_version
                     RESOURCES_PATH    = var.resources_path
                     tf_log            = var.tf_log
+                    SCRIPTS_LOCATION  = "s3://${aws_s3_bucket.codepipeline_bucket.id}/${local.scripts_prefix}/"
                   }
                 )
   }
@@ -196,4 +197,26 @@ resource "aws_codestarnotifications_notification_rule" "drift-pipeline-alert" {
   target {
     address = aws_sns_topic.alert-topic.arn
   }
+}
+
+locals {
+  scripts_prefix = "scripts/${var.semantic_version}"
+  drift_check_script_path = "${path.module}/scripts/drift-check.sh"
+  drift_resource_count_script_path = "${path.module}/scripts/drift-resource-count.sh"
+}
+
+resource "aws_s3_object" "drift_check_script" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+  key    = "${local.scripts_prefix}/drift-check.sh"
+  source = local.drift_check_script_path
+  etag   = filemd5(local.drift_check_script_path)
+  tags   = var.global_tags
+}
+
+resource "aws_s3_object" "drift_resource_count_script" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+  key    = "${local.scripts_prefix}/drift-resource-count.sh"
+  source = local.drift_resource_count_script_path
+  etag   = filemd5(local.drift_resource_count_script_path)
+  tags   = var.global_tags
 }

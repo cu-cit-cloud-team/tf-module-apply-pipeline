@@ -37,6 +37,12 @@ Tag formats supported:
 
 ## Change Log
 
+### 4.1.0
+- Add `semantic_version` variable to allow versioning of scripts deployed by this module in S3. Resources that use this module should pass in their own semantic version.
+- Enhance drift buildspec to ignore resources listed in a `plan.ignore-resources.txt` present in the source Terraform configuration. Thus a Terraform plan that shows no changes other than (possibly) the resources in `plan.ignore-resources.txt` will be treated as no drift detected.
+- Add scripts used by drift buildspec to the shared CodePipeline S3 bucket.
+- Add lifecycle policy to CodePipeline S3 bucket to expire objects older than `expire_days` days (default 180 days).
+
 ### 4.0.2
 - Set `TF_RECREATE_MISSING_LAMBDA_PACKAGE` to `false` in drift buildspec to avoid issues with missing Lambda packages when using `terraform-aws-modules/lambda/aws` module.
 
