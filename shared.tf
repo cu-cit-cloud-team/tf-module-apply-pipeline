@@ -43,6 +43,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "drift_expire_policy" {
     status = "Enabled"
 
     filter {
+      # The "folder" where pipeline sources and artifacts are stored
+      # is the first 20 characters of the pipeline name.
       prefix = substr(aws_codepipeline.drift-pipeline.name, 0, 20)
     }
 
@@ -57,6 +59,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "drift_expire_policy" {
     status = "Enabled"
 
     filter {
+      # The "folder" where pipeline sources and artifacts are stored
+      # is the first 20 characters of the pipeline name.
       prefix = substr(aws_codepipeline.apply-pipeline.name, 0, 20)
     }
 
