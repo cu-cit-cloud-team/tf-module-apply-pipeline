@@ -2,55 +2,50 @@ version: 0.2
 
 env:
   variables:
+    TF_RECREATE_MISSING_LAMBDA_PACKAGE: false
     TF_IN_AUTOMATION: true
     %{ if tf_log != null }
     TF_LOG: ${tf_log}
     %{ endif }
 
 phases:
+
   install:
     commands:
       - wget --no-verbose https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
       - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin
       - cd ${RESOURCES_PATH}
       - terraform init -input=false -no-color
+
   pre_build:
-    commands:
-      - terraform validate -no-color
-  build:
     commands:
       - env
       - echo "CODEBUILD_BUILD_ID $CODEBUILD_BUILD_ID"
       - echo "CODEBUILD_INITIATOR $CODEBUILD_INITIATOR"
-      - | 
-        echo "#!/bin/bash
 
+      - terraform validate -no-color
+
+  build:
+    commands:
+      # Place the scripts
+      - mkdir -p /tmp/scripts/
+      - aws s3 cp ${SCRIPTS_LOCATION} /tmp/scripts/ --recursive
+      - chmod +x /tmp/scripts/*.sh
+      - ls -al /tmp/scripts/
+
+      - |
         set +e
-        terraform plan -detailed-exitcode -input=false -no-color -refresh=true -out=plan.out
-        PLAN_EXIT=\$?
+        /tmp/scripts/drift-check.sh
+        PLAN_EXIT=$?
         set -e
-        
-        echo "Plan exit code: \$PLAN_EXIT"
-        
-        if [ \$PLAN_EXIT -eq 0 ]; then
-            echo "No changes to be applied. You must manually stop the execution during review."
-            exit 0
-        
-        elif [ \$PLAN_EXIT -eq 2 ]; then
-            terraform show plan.out > plan.txt
-            echo "Changes need to be applied."
-            exit 0
-        else
-            echo "Error"
-            exit \$PLAN_EXIT
-        fi
-        " > tf-plan.sh
-      - bash ./tf-plan.sh
+        /tmp/scripts/plan-post.sh
+
 artifacts:
   files:
-    - resources/tf-plan.sh
-    - resources/plan.out
-    - resources/plan.txt
+    - ${RESOURCES_PATH}*.txt
+    - ${RESOURCES_PATH}*.json
+    - ${RESOURCES_PATH}*.out
+
 cache:
   paths:
-    - '.terraform/**/*'
+    - '**/.terraform/**/*'

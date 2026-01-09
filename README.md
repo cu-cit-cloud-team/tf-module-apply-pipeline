@@ -31,11 +31,18 @@ Tag formats supported:
 
 ## TO DO
 
-- Integrate the full script from `tf-plan.sh` into `buildspec.plan.tmpl.yml`. This script stops the pipeline when there are no changes to be applied.
 - Add configuration options. E.g., send notifications to existing SNS topic instead of creating a new one.
 - More documentation
 
 ## Change Log
+
+### 4.2.0
+- Update the "plan" step of the "apply" pipeline to use new capabilities in the "drift" script to ignore specific resources during the "plan" step.
+- Update the "plan" step to terminate the pipeline early if no changes are detected (after accounting for ignored resources).
+- Enhance "drift" process to generate plan output that can be used in the "apply" step.
+- Expand the buildspec cache path for Terraform files.
+- Convert the format of CodeBuild failure notifications to Chatbot custom message format.
+- Add EventBridge rule to capture CodePipeline stopped events and send them to Chatbot for notification. "Stopped" is not one of the standard  CodePipeline notification events, so this is done via EventBridge.
 
 ### 4.1.0
 - Add `semantic_version` variable to allow versioning of scripts deployed by this module in S3. Resources that use this module should pass in their own semantic version.

@@ -120,6 +120,7 @@ resource "aws_codebuild_project" "build-plan" {
                     TERRAFORM_VERSION = var.terraform_version
                     RESOURCES_PATH    = var.resources_path
                     tf_log            = var.tf_log
+                    SCRIPTS_LOCATION  = "s3://${aws_s3_bucket.codepipeline_bucket.id}/${local.scripts_prefix}/"
                   }
                 )
   }
@@ -216,5 +217,52 @@ resource "aws_codestarnotifications_notification_rule" "apply-pipeline-alert" {
 
   target {
     address = aws_sns_topic.alert-topic.arn
+  }
+}
+
+# Standard CodePipeline Notifications do not include STOPPED state,
+# so we add a custom CloudWatch Event Rule and Target
+
+resource "aws_cloudwatch_event_rule" "apply_pipeline_stopped" {
+  name        = "${aws_codepipeline.apply-pipeline.name}-stopped"
+  description = "Notify when a CodePipeline execution is stopping or stopped"
+
+  event_pattern = jsonencode({
+    "source"      : ["aws.codepipeline"],
+    "detail-type" : ["CodePipeline Pipeline Execution State Change"],
+    "detail" : {
+      "pipeline" : [aws_codepipeline.apply-pipeline.name],
+      "state"    : ["STOPPED"]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "apply_pipeline_stopped" {
+  rule      = aws_cloudwatch_event_rule.apply_pipeline_stopped.name
+  target_id = "notify-topic"
+  arn       = aws_sns_topic.notify-topic.arn
+
+  # This formats the message using AWS Chatbot custom message format
+  input_transformer {
+    input_paths = {
+      region        = "$.region"
+      pipeline      = "$.detail.pipeline"
+      execution_id  = "$.detail.execution-id"
+      state         = "$.detail.state"
+      time          = "$.time"
+      account       = "$.account"
+    }
+
+    input_template = <<-EOF
+{
+  "version":"1.0",
+  "source":"custom",
+  "content": {
+    "textType":"client-markdown",
+    "title":"AWS CodePipeline Notification | <region> | Account: <account>",
+    "description":"CodePipeline pipeline execution **<state>**.\n- *Pipeline*: <pipeline>\n- *Execution ID*: <execution_id>\n- *Time*: <time>"
+  }
+}
+EOF
   }
 }

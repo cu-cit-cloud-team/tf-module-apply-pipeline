@@ -203,6 +203,7 @@ locals {
   scripts_prefix = "scripts/${var.semantic_version}"
   drift_check_script_path = "${path.module}/scripts/drift-check.sh"
   drift_resource_count_script_path = "${path.module}/scripts/drift-resource-count.sh"
+  plan_post_script_path = "${path.module}/scripts/plan-post.sh"
 }
 
 resource "aws_s3_object" "drift_check_script" {
@@ -218,5 +219,13 @@ resource "aws_s3_object" "drift_resource_count_script" {
   key    = "${local.scripts_prefix}/drift-resource-count.sh"
   source = local.drift_resource_count_script_path
   etag   = filemd5(local.drift_resource_count_script_path)
+  tags   = var.global_tags
+}
+
+resource "aws_s3_object" "post_plan_script" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+  key    = "${local.scripts_prefix}/plan-post.sh"
+  source = local.plan_post_script_path
+  etag   = filemd5(local.plan_post_script_path)
   tags   = var.global_tags
 }

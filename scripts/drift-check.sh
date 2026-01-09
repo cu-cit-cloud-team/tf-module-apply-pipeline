@@ -10,11 +10,14 @@ export ALL_RESOURCES_FILE=plan.all-resources.txt
 export DRIFTED_RESOURCES_FILE=plan.drifted-resources.txt
 export IGNORE_FILE=plan.ignore-resources.txt
 export FINAL_RESOURCES_FILE=plan.final-resources.txt
+export PLAN_FILE=plan.out
+export PLAN_TEXT=plan.txt
 
 # Don't exit on non-zero exit codes from terraform plan
 set +e
 
 terraform plan \
+    -out=$PLAN_FILE \
     -detailed-exitcode \
     -lock=false \
     -input=false \
@@ -40,6 +43,7 @@ elif [ $exitcode -eq 2 ]; then
   if [ $RESOURCE_COUNT -gt 0 ]; then
     msg="Terraform configuration drift detected on $RESOURCE_COUNT resources."
     # Leave the exit code as 2 to indicate drift detected on non-ignored resources
+    terraform show -no-color $PLAN_FILE > $PLAN_TEXT
   else
     # Set the exit code to 0 since the only drift was on ignored resources
     msg="No drift detected, excluding ignored resources."

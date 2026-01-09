@@ -298,6 +298,15 @@ resource "aws_iam_policy" "build-policy" {
             "iam:GetPolicyVersion"
         ],
         "Resource": ${jsonencode(var.resource_plan_policy_arns)}
+    },
+    {
+        "Sid": "PipelinePolicy",
+        "Effect": "Allow",
+        "Action": [
+            "codepipeline:GetPipelineState",
+            "codepipeline:StopPipelineExecution"
+        ],
+        "Resource": "${aws_codepipeline.apply-pipeline.arn}"
     }
   ]
 }
@@ -448,10 +457,26 @@ resource "aws_cloudwatch_event_target" "build-failure" {
       project = "$.detail.project-name"
       error   = "$.detail.completed-phase-context"
       status  = "$.detail.completed-phase-status"
+      region  = "$.region"
+      account = "$.account"
+      time    = "$.time"
     }
     input_template = <<TEMPLATE
 "<date> <project> - State: <status> Phase: <phase> Error: <error> Link: <loglink> "
 TEMPLATE
+
+    input_template = <<-EOF
+{
+  "version":"1.0",
+  "source":"custom",
+  "content": {
+    "textType":"client-markdown",
+    "title":"AWS CodeBuild Notification | <region> | Account: <account>",
+    "description":"CodeBuild project status **<status>**.\n- *Project*: <project>\n- *Phase*: <phase>\n- *Error*: <error>\n- *Link*: <loglink>\n- *Time*: <time>"
+  }
+}
+EOF
+  }
 
   }
 }

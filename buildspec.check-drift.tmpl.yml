@@ -9,6 +9,7 @@ env:
     %{ endif }
 
 phases:
+
   install:
     commands:
       - wget --no-verbose https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
@@ -31,7 +32,8 @@ artifacts:
   files:
     - ${RESOURCES_PATH}*.txt
     - ${RESOURCES_PATH}*.json
+    - ${RESOURCES_PATH}*.out
 
 cache:
   paths:
-    - '.terraform/**/*'
+    - '**/.terraform/**/*'
