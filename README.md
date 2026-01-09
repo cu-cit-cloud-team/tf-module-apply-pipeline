@@ -36,6 +36,9 @@ Tag formats supported:
 
 ## Change Log
 
+### 4.2.1
+- Fix CodeBuild failure notification configuration.
+
 ### 4.2.0
 - Update the "plan" step of the "apply" pipeline to use new capabilities in the "drift" script to ignore specific resources during the "plan" step.
 - Update the "plan" step to terminate the pipeline early if no changes are detected (after accounting for ignored resources).

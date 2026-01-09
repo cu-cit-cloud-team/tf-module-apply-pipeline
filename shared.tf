@@ -461,9 +461,6 @@ resource "aws_cloudwatch_event_target" "build-failure" {
       account = "$.account"
       time    = "$.time"
     }
-    input_template = <<TEMPLATE
-"<date> <project> - State: <status> Phase: <phase> Error: <error> Link: <loglink> "
-TEMPLATE
 
     input_template = <<-EOF
 {
@@ -472,12 +469,10 @@ TEMPLATE
   "content": {
     "textType":"client-markdown",
     "title":"AWS CodeBuild Notification | <region> | Account: <account>",
-    "description":"CodeBuild project status **<status>**.\n- *Project*: <project>\n- *Phase*: <phase>\n- *Error*: <error>\n- *Link*: <loglink>\n- *Time*: <time>"
+    "description":"CodeBuild project status **<status>**.\n- *Project*: <project>\n- *Phase*: <phase>\n- *Error*: <error>\n- *Logs*: [AWS Console](<loglink>)\n- *Time*: <time>"
   }
 }
 EOF
-  }
-
   }
 }
 
